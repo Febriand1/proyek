@@ -1,76 +1,101 @@
 <?php
-require ('../config.php');
-//inisialisasi session
-session_start();
- 
-//mengecek username pada session
-if( !isset($_SESSION['username']) ){
-  $_SESSION['msg'] = 'anda harus login untuk mengakses halaman ini';
-  header('Location: login.php');
-  exit;
-}
- $sql = 'SELECT * FROM produk';
- $query = mysqli_query($db, $sql);
- $products = mysqli_fetch_all($query, MYSQLI_ASSOC);
+require('../config.php') //agar index terhubung dengan database, maka koneksi sebagai penghubung harus di include
+
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<!-- meta tags -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="../assets/css/bootstrap.min.css" crossorigin="anonymous">
- 
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+    <title>CRUD Produk dengan gambar</title>
+
+    <style>
+    * {
+        padding: 0;
+        margin: 0;
+        font-family: "Times New Roman", Times, serif;
+    } 
+    table tr, th, td {
+        width: 200px;
+        min-height: 200px;
+        border: 2px solid;
+        padding: 10px;
+    }
+    </style>
+
 </head>
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-      <div class="container">
-        <a href="index.php" class="navbar-brand">Tokokita</a>
-        <button class="navbar-toggler" type="button" data-togle="collapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <ul class="navbar-nav ms-auto ml-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a href="../crud/login.php" class="nav-link text-light">Admin</a>
-            </li>
-            <li class="nav-item ml-4">
-                <a href="logout.php" class="nav-link text-light">Keluar</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-<div class="jumbotron jumbotron bg-light" style="height:90vh">
-  <div class="container">
-    <center><h2>SELAMAT DATANG DI TOKOKITA</h2></center>
-   
+<nav class="navbar navbar-light bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="../img/mendeley.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
+      MENDELEY v2</a>
+      <form class="navbar-nav ms-auto ml-auto mb-2 mb-lg-0">
+                <button class="btn btn-outline-success" type="submit"><a href="./login.php"  style="color: black;">Kembali</a></button>
+            </form>
   </div>
-  <!-- sini-->
-<div class="container">
- <div class="row">
-  <?php foreach ($products as $product) : ?>
-    <div class="col-md-3">
-      <div class="card" style="width: auto;">
-      <img src="../img/<?php echo $product['gambar_produk']?>" class="card-img-top" alt="...">
-      <div class="card-body">
-        <h5 class="card-title"><?php echo $product['nama_produk']?></h5>
-        <p class="card-text"><?php echo $product['deskripsi']?></p>
-        <a target="_blank" href="https://api.whatsapp.com/send/?phone=6282268895372&text=mau+pesan+<?php echo $product['nama_produk']?>&app_absent=0" class="btn btn-primary">Order Disini</a>
-      </div>
-      </div>
-    </div>
-  <?php endforeach; ?>
- </div>
-</div>
-<!-- sini-->
-</div>
+</nav>
 
+<center>
+        <h1>Data Dokumen</h1>
+        <center>
+            <center><a href="tambah.php" style="color: black;">+ &nbsp; Tambah Dokumen</a>
+                <center>
+                    <br />
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Kode Dokumen</th>
+                                <th>Jenis Dokumen</th>
+                                <th>Judul Dokumen</th>
+                                <th>Tahun Terbit</th>
+                                <th>Penulis</th>
+                                <th>Jumlah Halaman</th>
+                                <th>Aksi</th>
+                           
+                        </thead>
+                        <tbody>
+                            <?php
+                            // jalankan query untuk menampilkan semua data diurutkan berdasarkan nim
+                            $query = "SELECT * FROM dokumen ORDER BY dokumen_id ASC";
+                            $result = mysqli_query($db, $query);
+                            //mengecek apakah ada error ketika menjalankan query
+                            if (!$result) {
+                                die("Query Error: " . mysqli_errno($db) .
+                                    " - " . mysqli_error($db));
+                            }
 
- <!-- Bootstrap requirement jQuery pada posisi pertama, kemudian Popper.js, dan  yang terakhit Bootstrap JS -->
- <script src="../assets/js/jquery.min.js"></script>
-<script src="../assets/bootstrap.bundle.js" crossorigin="anonymous"></script>
-
+                            //buat perulangan untuk element tabel dari data mahasiswa
+                            $no = 1; //variabel untuk membuat nomor urut
+                            // hasil query akan disimpan dalam variabel $data dalam bentuk array
+                            // kemudian dicetak dengan perulangan while
+                            while ($row = mysqli_fetch_assoc($result)) {
+                            ?>
+                                <tr>
+                                    <td><?php echo $no; ?></td>
+                                    <td><?php echo $row['dokumen_id']; ?></td>
+                                    <td><?php echo $row['dokumen_jenis']; ?></td>
+                                    <td><?php echo $row['dokumen_judul']; ?></td>
+                                    <td><?php echo $row['dokumen_tahun']; ?></td>
+                                    <td><?php echo $row['dokumen_penulis']; ?></td>
+                                    <td><?php echo $row['dokumen_halaman']; ?></td>
+                                    <td>
+                                        <a href="edit.php?dokumen_id=<?php echo $row['dokumen_id']; ?>"  style="color: black;">Edit</a> |
+                                        <a href="proses_hapus.php?dokumen_id=<?php echo $row['dokumen_id']; ?>" onclick="return confirm('Anda yakin akan menghapus data ini?')"  style="color: black;">Hapus</a>
+                                    </td>
+                                </tr>
+                                <!-- <div>
+                                    <a href="../login/index.php">kembali</a>
+                                </div> -->
+                            <?php
+                                $no++; //untuk nomor urut terus bertambah 1
+                            }
+                            ?>
+                        </tbody>
+                    </table>
 </body>
+<script src="../assets/js/jquery.min.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
 </html>

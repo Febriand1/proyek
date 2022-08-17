@@ -1,104 +1,110 @@
-<?php
-//menyertakan file program koneksi.php pada register
-require('../config.php');
-//inisialisasi session
-session_start();
- 
-$error = '';
-$validate = '';
- 
-//mengecek apakah sesssion username tersedia atau tidak jika tersedia maka akan diredirect ke halaman index
-if( isset($_SESSION['user_username']) ) header('Location: index.php');
- 
-//mengecek apakah form disubmit atau tidak
-if( isset($_POST['submit']) ){
-         
-        // menghilangkan backshlases
-        $username = stripslashes($_POST['username']);
-        //cara sederhana mengamankan dari sql injection
-        $username = mysqli_real_escape_string($db, $username);
-         // menghilangkan backshlases
-        $password = stripslashes($_POST['password']);
-         //cara sederhana mengamankan dari sql injection
-        $password = mysqli_real_escape_string($db, $password);
-        
-        //cek apakah nilai yang diinputkan pada form ada yang kosong atau tidak
-        if(!empty(trim($username)) && !empty(trim($password))){
- 
-            //select data berdasarkan username dari database
-            $query      = "SELECT * FROM user WHERE user_username = '$username'";
-            $result     = mysqli_query($db, $query);
-            $rows       = mysqli_num_rows($result);
- 
-            if ($rows != 0) {
-                $hash   = mysqli_fetch_assoc($result)['user_password'];
-                if(password_verify($password, $hash)){
-                    $_SESSION['user_username'] = $username;
-                
-                    header('Location: index.php');
-                }
-                             
-            //jika gagal maka akan menampilkan pesan error
-            } else {
-                $error =  'proses masuk Gagal !!';
-            }
-             
-        }else {
-            $error =  'Data tidak boleh kosong !!';
-        }
-    } 
- 
-?>
- 
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- meta tags -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
- 
-<!-- costum css -->
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | MENDELEY v2</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css" />
+
+    <style>
+    * {
+    padding: 0;
+    margin: 0;
+    font-family: "Times New Roman", Times, serif;
+    }   
+
+    .bg-login {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    }
+
+    .box-login {
+    width: 300px;
+    min-height: 200px;
+    border: 1px solid;
+    background-color: #007bff;
+    padding: 15px;
+    box-sizing: border-box;
+    }
+
+    .box-login h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    }
+
+    .jarak {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    border: 1px solid;
+    }
+
+    .button {
+    background-color: white;
+    color: black;
+    padding: 8px 15px;
+    border: 1px solid;
+    cursor: pointer;
+    }
+
+    .table {
+    width: 100%;
+    border-collapse: collapse;
+    }
+
+    .table tr {
+    height: 30px;
+    }
+
+    .table tr td {
+    padding: 5px 10px;
+    }
+
+    </style>
 </head>
+
 <body>
-        <section class="container-fluid mb-4">
-            <!-- justify-content-center untuk mengatur posisi form agar berada di tengah-tengah -->
-            <section class="row justify-content-center">
-            <section class="col-12 col-sm-6 col-md-4">
-                <form class="form-container" action="login.php" method="POST">
-                    <h4 class="text-center font-weight-bold"> Sign-In </h4>
-                    <?php if($error != ''){ ?>
-                        <div class="alert alert-danger" role="alert"><?= $error; ?></div>
-                    <?php } ?>
-                    
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username">
-                    </div>
-                    <div class="form-group">
-                        <label for="InputPassword">Password</label>
-                        <input type="password" class="form-control" id="InputPassword" name="password" placeholder="Password">
-                        <?php if($validate != '') {?>
-                            <p class="text-danger"><?= $validate; ?></p>
-                        <?php }?>
-                    </div>
-                  
-                    <button type="submit" name="submit" class="btn btn-primary btn-block">Sign In</button>
-                    <div class="form-footer mt-2">
-                        <p> Belum punya account? <a href="daftar.php">Daftar</a></p>
-                    </div>
-                </form>
-            </section>
-            </section>
-        </section>
- 
-    <!-- Bootstrap requirement jQuery pada posisi pertama, kemudian Popper.js, dan  yang terakhit Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<nav class="navbar navbar-light bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="../img/mendeley.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
+      MENDELEY v2</a>
+  </div>
+</nav>
+
+    <div class="bg-login">
+    <div class="box-login">
+        <h2>Login</h2>
+        <form action="" method="POST">
+            <input type="text" name="user" placeholder="Username" class="jarak">
+            <input type="password" name="password" placeholder="Password" class="jarak">
+            <input type="submit" name="submit" value="Login" class="button">
+
+        </form>
+        <?php
+        if (isset($_POST['submit'])){
+            session_start();
+            include '../config.php';
+
+            $user     = $_POST['user'];
+            $password = $_POST['password'];
+
+            $cek = mysqli_query($db, "SELECT * FROM admin WHERE admin_username = '".$user."' AND admin_password = '".$password."'");
+            if (mysqli_num_rows($cek) > 0){
+                $d = mysqli_fetch_object($cek);
+                $_SESSION['status_login'] = true;
+                $_SESSION['a_global'] = $d;
+                $_SESSION['id'] = $d->admin_id;
+                echo '<script>window.location="index.php"</script>';
+            }else{
+                echo '<script>alert("username atau password anda salah!")</script>';
+            }
+        }
+        ?>
+    </div>
 </body>
 </html>
